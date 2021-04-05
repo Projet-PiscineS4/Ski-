@@ -7,8 +7,19 @@ private:
     int m_altitude;
 public:
     Point(int _num, int _altitude);
-    ~Point
-
+    ~Point();
+    int getNum()const
+    {
+        return m_num;
+    }
+    int getAltitude()const
+    {
+        return m_altitude;
+    }
+    void ajouterSucc( Trajet*t)
+    {
+        m_trajet.push_back(t);
+    }
 };
 //////////.cpp
 Point::Point(int _num,int _altitude)
@@ -52,6 +63,22 @@ private:
 public:
     Trajet(int _NumDep,int _NumAr, int _AltDep, int _AltAr, int _duree, std::string _type);
     ~Trajet();
+    int getDepart()const
+    {
+        return m_depart;
+    }
+    int getArrivee()const
+    {
+        return m_arrivee;
+    }
+    int getDuree()const
+    {
+        return m_duree;
+    }
+    std::string getType()const
+    {
+        return m_type;
+    }
 };
 //////////.cpp
 Trajet::Trajet(int _numDep,int _AltDep,int _numAr, int _AltAr,int _duree,std::string _type)
@@ -64,25 +91,116 @@ Trajet::~Trajet()
 {
 
 }
-
-/////////////.h
-class Graphe
+class Duree
 {
 private:
-    std::vector<Lieu*> m_lieux;
-    int m_taille;
-    int m_ordre;
-    int m_orientation;
+    int m_dureeFixe;
+    int m_dureeDenivele;
+    std::string m_parcours;
 public:
-    Graphe();//code minh bao;
-    ~Graphe();
+    Duree(int _DureeFixe, int _DureeDenivele, std::string _Parcours);
+    ~Duree();
+    int getDureeFixe() const;
+    int getDureeDenivele() const;
+    std::string getParcours()const;
 };
-//////////.cpp
-Graphe::Graphe()//Code minh Bao ouverture fichier
+Duree::Duree(int _dureeFixe, int _dureeDenivele, std::string _parcours)
+    :m_dureeFixe(_dureeFixe),m_dureeDenivele(_dureeDenivele),m_parcours(_parcours)
 {
 
 }
-Graphe::~Graphe()
+Duree::~Duree()
 {
 
 }
+int Duree::getDureeFixe()const
+{
+    return m_dureeFixe;
+}
+int Duree::getDureeDenivele()const
+{
+    return m_dureeDenivele;
+}
+std::string Duree::getParcours()const
+{
+    return m_parcours;
+}
+/////////////.h
+class Station
+{
+private :
+    ///liste des sommets (vecteur de pointeurs sur Sommet)
+    std::vector<Point*> m_sommets;
+    std::vector<Trajet*> m_aretes;
+    std::pair<Point*,int> m_liaison;
+    std::vector<Duree*> m_duree;
+public :
+    /* La construction du réseau peut se faire à partir d'un fichier
+     dont le nom est passé en paramètre
+    Le fichier contient : orientation (0 ou 1), ordre, taille, liste des arcs */
+Station(std::string nomFichier)
+   {
+        std::ifstream ifs{nomFichier};
+        if (!ifs)
+            throw std::runtime_error( "Impossible d'ouvrir en lecture " + nomFichier );
+
+        int ordre;
+        ifs >> ordre;
+        if ( ifs.fail() )
+            throw std::runtime_error("Probleme lecture ordre du graphe");
+        int n, altitude;
+        std::string pointDinteret;
+        for (int i=0; i<ordre; ++i)
+        {
+            ifs >> n>> pointDinteret>>altitude;
+            m_sommets.push_back( new Point{n,altitude} );
+        }
+
+        int taille;
+        ifs >> taille;
+        if ( ifs.fail() )
+            throw std::runtime_error("Probleme lecture taille du graphe");
+        int numeroTrajet, num1,num2;
+        std::string NomTrajet,TypeTrajet;
+        for (int i=0; i<taille; ++i)
+        {
+            ifs>>numeroTrajet>>NomTrajet>>TypeTrajet>>num1>>num2;
+            if ( ifs.fail() )
+                throw std::runtime_error("Probleme lecture arc");
+            Trajet* t=new Trajet(num1,num2, 0,TypeTrajet);
+            m_aretes.push_back(t);//le graphe débute à 1, donc on soustrait 1
+
+            //m_liaison=std::make_pair(m_sommets[num2],TypeTrajet);//association du poids de la liaison avec le deuxième sommet
+
+            m_sommets[num1-1]->ajouterSucc(t);//association de la liaison avec le sommet auquel elle est rattachée
+        }
+        int dureeFixe,dureeDenivele;
+        for(int i=0;i<15;i++)
+        {
+            ifs>>TypeTrajet>>dureeFixe>>dureeDenivele;
+            m_duree.push_back(new Duree(dureeFixe,dureeDenivele,TypeTrajet));
+        }
+
+
+    }
+    void afficher() const
+    {
+        std::cout<<std::endl<<"graphe ";
+        std::cout<<"ordre = "<<m_sommets.size()<<std::endl<<"  ";
+        std::cout<<"listes d'adjacence :"<<std::endl;
+        for (auto s : m_sommets)
+        {
+            std::cout<<s->getNum()<<" "<<s->getAltitude()<<std::endl;
+        }
+        std::cout<<"liste des aretes :"<<std::endl;
+        for (auto s:m_aretes)
+        {
+            std::cout<<s->getDepart()<<" "<<s->getArrivee()<<" "<<s->getDuree()<<" "<<s->getType()<<std::endl;
+        }
+        std::cout<<"duree:"<<std::endl;
+        for(auto s: m_duree)
+        {
+            std::cout<<s->getDureeFixe()<<" "<<s->getDureeDenivele()<<" "<<s->getParcours()<<std::endl;
+        }
+    }
+};
