@@ -1,0 +1,60 @@
+class Point
+{
+private:
+    int m_num;
+    vector <Trajet*> m_trajet;
+    int m_altitude;
+public:
+    Point(int _num, int _altitude);
+    ~Point
+
+};
+Point::Point(int _num,int _altitude)
+    :m_num(_num),m_altitude(_altitude)
+{
+}
+
+Point::~Point()
+{
+}
+
+class Lieu
+{
+private:
+     std::string m_nom;
+     std::vector<Point*> m_points;
+public:
+    Lieu(std::string _nom);
+    ~Lieu();
+};
+Lieu::Lieu(std::string _nom)
+    :m_nom(_nom);
+{
+
+}
+Lieu::~Lieu()
+{
+}
+
+class Trajet
+{
+private:
+    int m_depart;
+    int m_arrive;
+    int m_duree;
+    std::string m_type;
+public:
+    Trajet(int _depart, int _arrive, int _duree, std::string _type);
+    ~Trajet();
+
+};
+Trajet::Trajet(int _depart,int _arrive,int _duree,std::string _type)
+    :m_depart(_depart),m_arrive(_arrive),m_duree(_duree),m_type(_type);
+{
+    
+}
+Trajet::~Trajet()
+{
+
+}
+
