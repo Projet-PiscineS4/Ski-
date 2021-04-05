@@ -1,3 +1,4 @@
+/////////////.h
 class Point
 {
 private:
@@ -9,15 +10,17 @@ public:
     ~Point
 
 };
+//////////.cpp
 Point::Point(int _num,int _altitude)
     :m_num(_num),m_altitude(_altitude)
 {
 }
-
 Point::~Point()
 {
 }
 
+
+/////////////.h
 class Lieu
 {
 private:
@@ -27,6 +30,7 @@ public:
     Lieu(std::string _nom);
     ~Lieu();
 };
+//////////.cpp
 Lieu::Lieu(std::string _nom)
     :m_nom(_nom);
 {
@@ -36,6 +40,8 @@ Lieu::~Lieu()
 {
 }
 
+
+/////////////.h
 class Trajet
 {
 private:
@@ -44,17 +50,39 @@ private:
     int m_duree;
     std::string m_type;
 public:
-    Trajet(int _depart, int _arrive, int _duree, std::string _type);
+    Trajet(int _NumDep,int _NumAr, int _AltDep, int _AltAr, int _duree, std::string _type);
     ~Trajet();
-
 };
-Trajet::Trajet(int _depart,int _arrive,int _duree,std::string _type)
-    :m_depart(_depart),m_arrive(_arrive),m_duree(_duree),m_type(_type);
+//////////.cpp
+Trajet::Trajet(int _numDep,int _AltDep,int _numAr, int _AltAr,int _duree,std::string _type)
+    :m_duree(_duree),m_type(_type);
 {
-    
+    m_depart = new Point(_numDep,_AltDep);
+    m_arrive = new Point(_numAr, _AltAr);
 }
 Trajet::~Trajet()
 {
 
 }
 
+/////////////.h
+class Graphe
+{
+private:
+    std::vector<Lieu*> m_lieux;
+    int m_taille;
+    int m_ordre;
+    int m_orientation;
+public:
+    Graphe();//code minh bao;
+    ~Graphe();
+};
+//////////.cpp
+Graphe::Graphe()//Code minh Bao ouverture fichier
+{
+
+}
+Graphe::~Graphe()
+{
+
+}
