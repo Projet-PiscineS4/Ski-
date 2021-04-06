@@ -73,7 +73,7 @@ public:
     int getDuree()const;
     std::string getType()const;
 };
-//////////.cpp
+/////////////.cpp
 Trajet::Trajet(int _numDep,int _AltDep,int _numAr, int _AltAr,int _duree,std::string _type)
     :m_duree(_duree),m_type(_type);
 {
@@ -101,7 +101,7 @@ std::string Trajet::getType()const
     return m_type;
 }
 
-//////////.h
+/////////////.h
 class Duree
 {
 private:
@@ -116,7 +116,7 @@ public:
     std::string getParcours()const;
 };
 
-//////////.cpp
+/////////////.cpp
 Duree::Duree(int _dureeFixe, int _dureeDenivele, std::string _parcours)
     :m_dureeFixe(_dureeFixe),m_dureeDenivele(_dureeDenivele),m_parcours(_parcours)
 {
@@ -150,70 +150,84 @@ private :
 public :
     /* La construction du réseau peut se faire à partir d'un fichier
      dont le nom est passé en paramètre
-    Le fichier contient :  ordre, taille, liste des arcs */
-Station(std::string nomFichier)
-   {
-        std::ifstream ifs{nomFichier};
-        if (!ifs)
-            throw std::runtime_error( "Impossible d'ouvrir en lecture " + nomFichier );
+    Le fichier contient : orientation (0 ou 1), ordre, taille, liste des arcs */
 
-        int ordre;
-        ifs >> ordre;
-        if ( ifs.fail() )
-            throw std::runtime_error("Probleme lecture ordre du graphe");
-        int n, altitude;
-        std::string pointDinteret;
-        for (int i=0; i<ordre; ++i)
-        {
-            ifs >> n>> pointDinteret>>altitude;
-            m_sommets.push_back( new Point{n,altitude} );
-        }
+    Station(std::string nomFichier);
 
-        int taille;
-        ifs >> taille;
-        if ( ifs.fail() )
-            throw std::runtime_error("Probleme lecture taille du graphe");
-        int numeroTrajet, num1,num2;
-        std::string NomTrajet,TypeTrajet;
-        for (int i=0; i<taille; ++i)
-        {
-            ifs>>numeroTrajet>>NomTrajet>>TypeTrajet>>num1>>num2;
-            if ( ifs.fail() )
-                throw std::runtime_error("Probleme lecture arc");
-            Trajet* t=new Trajet(num1,num2, 0,TypeTrajet);
-            m_aretes.push_back(t);//le graphe débute à 1, donc on soustrait 1
+    void afficher() const;
 
-            //m_liaison=std::make_pair(m_sommets[num2],TypeTrajet);//association du poids de la liaison avec le deuxième sommet
-
-            m_sommets[num1-1]->ajouterSucc(t);//association de la liaison avec le sommet auquel elle est rattachée
-        }
-        int dureeFixe,dureeDenivele;
-        for(int i=0;i<15;i++)
-        {
-            ifs>>TypeTrajet>>dureeFixe>>dureeDenivele;
-            m_duree.push_back(new Duree(dureeFixe,dureeDenivele,TypeTrajet));
-        }
-
-
-    }
-    void afficher() const
-    {
-        std::cout<<std::endl<<"graphe ";
-        std::cout<<"ordre = "<<m_sommets.size()<<std::endl<<"  ";
-        std::cout<<"listes d'adjacence :"<<std::endl;
-        for (auto s : m_sommets)
-        {
-            std::cout<<s->getNum()<<" "<<s->getAltitude()<<std::endl;
-        }
-        std::cout<<"liste des aretes :"<<std::endl;
-        for (auto s:m_aretes)
-        {
-            std::cout<<s->getDepart()<<" "<<s->getArrivee()<<" "<<s->getDuree()<<" "<<s->getType()<<std::endl;
-        }
-        std::cout<<"duree:"<<std::endl;
-        for(auto s: m_duree)
-        {
-            std::cout<<s->getDureeFixe()<<" "<<s->getDureeDenivele()<<" "<<s->getParcours()<<std::endl;
-        }
-    }
 };
+/////////////.cpp
+Station::Station(std::string nomFichier)
+{
+    std::ifstream ifs{nomFichier};
+    if (!ifs)
+        throw std::runtime_error( "Impossible d'ouvrir en lecture " + nomFichier );
+
+    int ordre;
+    ifs >> ordre;
+    if ( ifs.fail() )
+        throw std::runtime_error("Probleme lecture ordre du graphe");
+    int n, altitude;
+    std::string pointDinteret;
+    for (int i=0; i<ordre; ++i)
+    {
+        ifs >> n>> pointDinteret>>altitude;
+        m_sommets.push_back( new Point{n,altitude} );
+    }
+
+    int taille;
+    ifs >> taille;
+    if ( ifs.fail() )
+        throw std::runtime_error("Probleme lecture taille du graphe");
+    int numeroTrajet, num1,num2;
+    std::string NomTrajet,TypeTrajet;
+    for (int i=0; i<taille; ++i)
+    {
+        ifs>>numeroTrajet>>NomTrajet>>TypeTrajet>>num1>>num2;
+        if ( ifs.fail() )
+            throw std::runtime_error("Probleme lecture arc");
+        Trajet* t=new Trajet(m_sommets[num1-1],m_sommets[num2-1], 0,TypeTrajet);
+        m_aretes.push_back(t);//le graphe débute à 1, donc on soustrait 1
+
+        //m_liaison=std::make_pair(m_sommets[num2],TypeTrajet);//association du poids de la liaison avec le deuxième sommet
+
+        m_sommets[num1-1]->ajouterSucc(t);//association de la liaison avec le sommet auquel elle est rattachée
+    }
+    int dureeFixe,dureeDenivele;
+    for(int i=0; i<15; i++)
+    {
+        ifs>>TypeTrajet>>dureeFixe>>dureeDenivele;
+        m_duree.push_back(new Duree(dureeFixe,dureeDenivele,TypeTrajet));
+    }
+
+
+}
+void Station::afficher() const
+{
+    std::cout<<std::endl<<"graphe ";
+    std::cout<<"ordre = "<<m_sommets.size()<<std::endl<<"  ";
+    std::cout<<"listes d'adjacence :"<<std::endl;
+    for (auto s : m_sommets)
+    {
+        std::cout<<s->getNum()<<" "<<s->getAltitude()<<std::endl;
+    }
+    std::cout<<"liste des aretes :"<<std::endl;
+    for (auto s:m_aretes)
+    {
+        std::cout<<s->getDepart()->getNum()<<" "<<s->getArrivee()->getNum()<<" "<<s->getDuree()<<" "<<s->getType()<<std::endl;
+    }
+    std::cout<<"duree:"<<std::endl;
+    for(auto s: m_duree)
+    {
+        std::cout<<s->getDureeFixe()<<" "<<s->getDureeDenivele()<<" "<<s->getParcours()<<std::endl;
+    }
+}
+/////////////main
+int main()
+{
+    Station arcs("data_arcs.txt");
+    arcs.afficher();
+
+    return 0;
+}
