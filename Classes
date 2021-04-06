@@ -8,18 +8,11 @@ private:
 public:
     Point(int _num, int _altitude);
     ~Point();
-    int getNum()const
-    {
-        return m_num;
-    }
-    int getAltitude()const
-    {
-        return m_altitude;
-    }
-    void ajouterSucc( Trajet*t)
-    {
-        m_trajet.push_back(t);
-    }
+    
+    int getNum()const;
+    int getAltitude()const;
+    void ajouterSucc( Trajet*t);
+
 };
 //////////.cpp
 Point::Point(int _num,int _altitude)
@@ -30,7 +23,18 @@ Point::~Point()
 {
 }
 
-
+int Point::getNum()const
+{
+    return m_num;
+}
+int Point::getAltitude()const
+{
+    return m_altitude;
+}
+void Point::ajouterSucc( Trajet*t)
+{
+    m_trajet.push_back(t);
+}
 /////////////.h
 class Lieu
 {
@@ -63,22 +67,11 @@ private:
 public:
     Trajet(int _NumDep,int _NumAr, int _AltDep, int _AltAr, int _duree, std::string _type);
     ~Trajet();
-    int getDepart()const
-    {
-        return m_depart;
-    }
-    int getArrivee()const
-    {
-        return m_arrivee;
-    }
-    int getDuree()const
-    {
-        return m_duree;
-    }
-    std::string getType()const
-    {
-        return m_type;
-    }
+    
+    int getDepart()const;
+    int getArrivee()const;
+    int getDuree()const;
+    std::string getType()const;
 };
 //////////.cpp
 Trajet::Trajet(int _numDep,int _AltDep,int _numAr, int _AltAr,int _duree,std::string _type)
@@ -91,6 +84,24 @@ Trajet::~Trajet()
 {
 
 }
+int Trajet::getDepart()const
+{
+    return m_depart;
+}
+int Trajet::getArrivee()const
+{
+    return m_arrivee;
+}
+int Trajet::getDuree()const
+{
+    return m_duree;
+}
+std::string Trajet::getType()const
+{
+    return m_type;
+}
+
+//////////.h
 class Duree
 {
 private:
@@ -104,6 +115,8 @@ public:
     int getDureeDenivele() const;
     std::string getParcours()const;
 };
+
+//////////.cpp
 Duree::Duree(int _dureeFixe, int _dureeDenivele, std::string _parcours)
     :m_dureeFixe(_dureeFixe),m_dureeDenivele(_dureeDenivele),m_parcours(_parcours)
 {
