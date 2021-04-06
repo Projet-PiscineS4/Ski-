@@ -150,7 +150,7 @@ private :
 public :
     /* La construction du réseau peut se faire à partir d'un fichier
      dont le nom est passé en paramètre
-    Le fichier contient : orientation (0 ou 1), ordre, taille, liste des arcs */
+    Le fichier contient :  ordre, taille, liste des arcs */
 Station(std::string nomFichier)
    {
         std::ifstream ifs{nomFichier};
