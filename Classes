@@ -60,8 +60,8 @@ Lieu::~Lieu()
 class Trajet
 {
 private:
-    Points *m_depart;
-    Points *m_arrive;
+    Point *m_depart;
+    Point *m_arrive;
     int m_duree;
     std::string m_type;
 public:
@@ -90,7 +90,7 @@ int Trajet::getDepart()const
 }
 int Trajet::getArrivee()const
 {
-    return m_arrivee;
+    return m_arrive;
 }
 int Trajet::getDuree()const
 {
