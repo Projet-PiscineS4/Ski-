@@ -77,8 +77,7 @@ public:
 Trajet::Trajet(Point* _depart,Point* _arrive,int _duree,std::string _type)
     :m_depart(_depart),m_arrive(_arrive),m_duree(_duree),m_type(_type)
 {
-    m_depart = new Point(_numDep,_AltDep);
-    m_arrive = new Point(_numAr, _AltAr);
+    
 }
 Trajet::~Trajet()
 {
