@@ -65,17 +65,17 @@ private:
     int m_duree;
     std::string m_type;
 public:
-    Trajet(Point* _depart, Point* _arrivee, int _duree, std::string _type);
+    Trajet(Point* _depart, Point* _arrive, int _duree, std::string _type);
     ~Trajet();
     
     Point* getDepart()const;
-    Point* getArrivee()const;
+    Point* getArrive()const;
     int getDuree()const;
     std::string getType()const;
 };
 /////////////.cpp
-Trajet::Trajet(Point* _depart,Point* _arrivee,int _duree,std::string _type)
-    :m_depart(_depart),m_arrivee(_arrivee),m_duree(_duree),m_type(_type)
+Trajet::Trajet(Point* _depart,Point* _arrive,int _duree,std::string _type)
+    :m_depart(_depart),m_arrive(_arrive),m_duree(_duree),m_type(_type)
 {
     m_depart = new Point(_numDep,_AltDep);
     m_arrive = new Point(_numAr, _AltAr);
@@ -88,7 +88,7 @@ Point* Trajet::getDepart()const
 {
     return m_depart;
 }
-Point* Trajet::getArrivee()const
+Point* Trajet::getArrive()const
 {
     return m_arrive;
 }
