@@ -72,6 +72,8 @@ public:
     Point* getArrive()const;
     int getDuree()const;
     std::string getType()const;
+    int calculDenivele();
+    void setDuree(int duree);
 };
 /////////////.cpp
 Trajet::Trajet(Point* _depart,Point* _arrive,int _duree,std::string _type)
@@ -99,7 +101,14 @@ std::string Trajet::getType()const
 {
     return m_type;
 }
-
+int Trajet::calculDenivele()
+{
+    return std::max(m_depart->getAltitude(),m_arrivee->getAltitude())-std::min(m_depart->getAltitude(),m_arrivee->getAltitude());
+}
+void Trajet::setDuree(int duree)
+{
+    m_duree=duree;
+}
 /////////////.h
 class Duree
 {
@@ -113,6 +122,7 @@ public:
     int getDureeFixe() const;
     int getDureeDenivele() const;
     std::string getParcours()const;
+    int calculDuree(Trajet* t);
 };
 
 /////////////.cpp
@@ -136,6 +146,12 @@ int Duree::getDureeDenivele()const
 std::string Duree::getParcours()const
 {
     return m_parcours;
+}
+int Duree::calculDuree(Trajet* t)
+{
+    int dureeTotale;
+    dureeTotale=t->calculDenivele()*m_dureeDenivele/100+m_dureeFixe;
+    return dureeTotale;
 }
 /////////////.h
 class Station
@@ -199,7 +215,18 @@ Station::Station(std::string nomFichier)
         ifs>>TypeTrajet>>dureeFixe>>dureeDenivele;
         m_duree.push_back(new Duree(dureeFixe,dureeDenivele,TypeTrajet));
     }
-
+    for (auto s:m_aretes)
+    {
+        int t;
+        for (auto it:m_duree)
+        {
+            if(s->getType()==it->getParcours())
+            {
+                t=it->calculDuree(s);
+            }
+            s->setDuree(t);
+        }
+    }
 
 }
 void Station::afficher() const
@@ -221,6 +248,7 @@ void Station::afficher() const
     {
         std::cout<<s->getDureeFixe()<<" "<<s->getDureeDenivele()<<" "<<s->getParcours()<<std::endl;
     }
+    
 }
 /////////////main
 int main()
