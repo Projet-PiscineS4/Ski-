@@ -1,0 +1,66 @@
+void Parcours(Station &Graphe);
+void Chemin(Station &Graphe);
+
+void Menu()
+{
+
+    Station graphe("fichier.txt");
+    int choix;
+    std::cout<<"Bienvenue dans notre sur la Borne Interactive de votre Domaine Skiable prefere !! "<<std::endl;
+    std::cout<<std::endl;
+    std::cout<<"Que voulez vous faire ? :"<<std::endl;
+    std::cout<< "1) Savoir les Points d'arrive et de Depart d'un trajet     ";
+    std::cout<<"     2) Savoir les trajet relies a un point";
+    std::cin>>choix;
+    std::cout<<std::endl;
+    switch(choix)
+    {
+    case 1:
+    {
+        Parcours(graphe);
+        break;
+    }
+    case 2:
+    {
+        Chemin(graphe);
+        break;
+    }
+    }
+}
+
+void Parcours(Station &LeG)
+{
+    system("cls");
+    int choix;
+
+    std::cout<<"Choisissez un trajet :"<<std::endl;
+    //LeG.afficheTraj();
+    std::cin>>choix;
+
+
+    LeG.ChoixTraj(choix);
+}
+
+
+void Chemin(Station &LeG)
+{
+    system("cls");
+    int dep;
+    //char t;
+   // do
+    //{
+        std::cout<<"Choisissez votre point de depart :"<<std::endl;
+        std::cin>>dep;
+       // t=dep;
+
+   // }while(t>'%'|| t<'NUL');
+    LeG.ChoixP(dep);
+}
+
+
+int main()
+{
+
+    Menu();
+
+}
