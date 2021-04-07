@@ -170,6 +170,9 @@ public :
     Station(std::string nomFichier);
 
     void afficher() const;
+    void afficheTraj()const;
+    void ChoixTraj(int choix);
+    void ChoixP(int choix1);
 
 };
 /////////////.cpp
@@ -250,11 +253,44 @@ void Station::afficher() const
     }
     
 }
-/////////////main
-int main()
-{
-    Station arcs("data_arcs.txt");
-    arcs.afficher();
 
-    return 0;
+
+void Station::afficheTraj() const
+{
+
+    for(int i=1; i!=m_aretes.size(); i++)
+    {
+        std::cout<<i<<": "<<m_aretes[i]->getDepart()->getNum()<<"----";
+        std::cout<<m_aretes[i]->getArrive()->getNum()<<std::endl;
+    }
+
 }
+
+void Station::ChoixTraj(int choix)
+{
+    std::cout<<"Le point "<<m_aretes[choix-1]->getDepart()->getNum()<<" en direction du point ";
+    std::cout<<m_aretes[choix-1]->getArrive()->getNum()<<std::endl;
+    if(m_aretes[choix-1]->getType()=="TS")
+    {
+        std::cout<<"Voici le type du trajet : Telesiege" ;
+    }
+}
+
+
+void Station::ChoixP(int dep)
+{
+    for(auto par : m_aretes)
+    {
+        if(par->getDepart()->getNum()==dep)
+        {
+            std::cout<<"Le sommet "<<par->getDepart()->getNum()<<" est un le point de depart en direction du point "<<par->getArrive()->getNum();
+            std::cout<<std::endl;
+        }
+        if(par->getArrive()->getNum()==dep)
+        {
+            std::cout<<"Le sommet " <<par->getArrive()->getNum()<<" est le point d'arrive en provenance du point "<<par->getDepart()->getNum();
+            std::cout<<std::endl;
+        }
+    }
+}
+
