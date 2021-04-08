@@ -179,7 +179,7 @@ public :
     void afficheTraj()const;
     void ChoixTraj(int choix);
     void ChoixP(int choix1);
-
+void dijkstra(int numDebut, int numFin);
 };
 /////////////.cpp
 Station::Station(std::string nomFichier)
@@ -227,6 +227,17 @@ Station::Station(std::string nomFichier)
     for (auto s:m_aretes)
     {
         int t;
+        if(s->getType()=="BUS")
+            {
+                if((s->getNom()=="navette1600-1800")||(s->getNom()=="navette1800-1600"))
+                {
+                    s->setDuree(1800);
+                }
+                else
+                {
+                    s->setDuree(2400);
+                }
+            }
         for (auto it:m_duree)
         {
             if(s->getType()==it->getParcours())
@@ -300,3 +311,80 @@ void Station::ChoixP(int dep)
     }
 }
 
+void Station::dijkstra(int numDebut,int numFin)
+{
+    std::vector<int> distance;//distance
+    std::vector<int> pred;//prédécesseurs du sommet
+    std::vector<int> marque;//vecteur indiquant si un sommet est marqué ou pas
+    int indice;
+    for(unsigned int i=0; i<m_sommets.size(); i++)//initialisation des vecteurs
+    {
+        marque.push_back(0);
+        distance.push_back(INFINI);
+        pred.push_back(-1);
+    }
+// étape 0
+    distance[numDebut]=0; //1er sommet, distance nulle
+
+        // étapes 1 à n
+    bool finBoucle=false;
+
+    while (!finBoucle)
+    {
+        int distanceMinimum=INFINI;//dstance minimun au sommet, initialisée à INFINI
+
+        for(unsigned int i=0; i<m_sommets.size(); i++)
+        {
+            if(marque[i]==0)
+            {
+                if(distance[i]<distanceMinimum)//si la distance du sommet i au sommet initial est inférieure à la distance précédemment enregisttrée
+                {
+                    distanceMinimum=distance[i];
+                    indice=i;
+                }
+            }
+
+        }
+        marque[indice]=1;//le sommet est marqué
+        if(indice==numFin)//fin de la boucle si l'indice est le numéro d'arrivée
+        {
+            finBoucle=true;
+        }
+        else
+        {
+            for (unsigned int i=0; i<m_sommets[indice-1]->getSuccesseurs().size(); ++i)
+            {
+                int nvDistance=distance[indice]+m_sommets[indice-1]->getSuccesseurs()[i]->getDuree();//calcul d'une distance passant par un successeur
+                int indiceSuc=m_sommets[indice-1]->getSuccesseurs()[i]->getArrivee()->getNum();//indice d'un successeur du sommet indice
+                if(nvDistance<distance[indiceSuc])//Si la distance calculée est inférieure à la distance trouvée précédemment
+                {
+                    distance[indiceSuc]=nvDistance;//la distance nouvellement calculée calculée devient la distance de référence
+                    pred[indiceSuc]=indice;//le sommet indice passe dans le tableau des prédécesseurs
+                }
+            }
+        }
+
+    }
+    std::cout<<"trajet: ";
+    do
+    {
+        std::cout<<indice<<" <- ";
+        indice=pred[indice];
+    }
+    while(indice!=numDebut);//afficher la liste des sommets en partant du dernier sommet
+    std::cout<<indice<<std::endl;
+    indice=numFin;
+    std::cout<<"longueur: ";
+    do
+    {
+        std::cout<<distance[indice]-distance[pred[indice]];
+        indice=pred[indice];
+        if(indice!=numDebut)
+        {
+            std::cout<<" + ";
+        }
+    }
+    while(indice!=numDebut);//afficher la somme des distances en partant de la distance finale
+    std::cout<<" = "<<distance[numFin]<<std::endl;
+
+}
