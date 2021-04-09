@@ -1,211 +1,169 @@
 #include <iostream>
 #include <vector>
-#include <queue>
+
 #include <fstream>
-#include <stack>
-#include <utility>
+
 #define INFINI 100000
+/////////////.cpp
 
-///Source: Extrait du zip du code de Mme Palasi sur le chargement du fichier dans le graphe
-class Sommet
+Station::Station(std::string nomFichier)
 {
-private :
-    int m_num;
-    ///chaque sommet possède la liste de ses successeurs (un vecteur de pointeurs sur Sommet)
-    std::vector<std::pair<Sommet*,int>> m_successeurs;
+    std::ifstream ifs{nomFichier};
+    if (!ifs)
+        throw std::runtime_error( "Impossible d'ouvrir en lecture " + nomFichier );
 
-public :
-    /*constructeur*/
-    Sommet(int num):m_num{num} {};
-    /*accesseurs*/
-    int getNum()const
+    int ordre;
+    ifs >> ordre;
+    if ( ifs.fail() )
+        throw std::runtime_error("Probleme lecture ordre du graphe");
+    int n, altitude;
+    std::string pointDinteret;
+    for (int i=0; i<ordre; ++i)
     {
-        return m_num;
-    }
-    ///accesseur : pour la liste des successeurs
-    const std::vector<std::pair<Sommet*,int>>& getSuccesseurs()const
-    {
-        return m_successeurs;
-    }
-    /* pour ajouter un successeur à la liste*/
-    void ajouterSucc(std::pair<Sommet*,int>s)
-    {
-        m_successeurs.push_back(s);
-    }
-    /* méthode d'affichage*/
-    void afficher() const
-    {
-        std::cout<<"     sommet "<<m_num<<" : ";
-        for (auto s : m_successeurs)
-            std::cout<<s.first->getNum()<<" ("<<s.second<<") ";//affichage du numéro du sommet succcesseur et du poidsde la liaison correspondant
+        ifs >> n>> pointDinteret>>altitude;
+        m_sommets.push_back( new Point{n,altitude} );
     }
 
-};
+    int taille;
+    ifs >> taille;
+    if ( ifs.fail() )
+        throw std::runtime_error("Probleme lecture taille du graphe");
+    int numeroTrajet, num1,num2;
+    std::string NomTrajet,TypeTrajet;
+    for (int i=0; i<taille; ++i)
+    {
+        ifs>>numeroTrajet>>NomTrajet>>TypeTrajet>>num1>>num2;
+        if ( ifs.fail() )
+            throw std::runtime_error("Probleme lecture arc");
+        Trajet* t=new Trajet(m_sommets[num1-1],m_sommets[num2-1], 0,TypeTrajet,NomTrajet);
+        m_aretes.push_back(t);//le graphe débute à 1, donc on soustrait 1
 
+        //m_liaison=std::make_pair(m_sommets[num2],TypeTrajet);//association du poids de la liaison avec le deuxième sommet
 
-class Graphe
+        m_sommets[num1-1]->ajouterSucc(t);//association de la liaison avec le sommet auquel elle est rattachée
+    }
+    int dureeFixe,dureeDenivele;
+    for(int i=0; i<15; i++)//nombre de temps de trajet
+    {
+        ifs>>TypeTrajet>>dureeFixe>>dureeDenivele;
+        m_duree.push_back(new Duree(dureeFixe,dureeDenivele,TypeTrajet));
+    }
+    for (auto s:m_aretes)
+    {
+        int t;
+        for (auto it:m_duree)
+        {
+            if(s->getType()=="BUS")
+            {
+                if((s->getNom()=="navette1600-1800")||(s->getNom()=="navette1800-1600"))
+                {
+                    s->setDuree(1800);
+                }
+                else
+                {
+                    s->setDuree(2400);
+                }
+            }
+            else if(s->getType()==it->getParcours())
+            {
+                t=it->calculDuree(s);
+                s->setDuree(t);
+            }
+
+        }
+    }
+
+}
+void Station::dijkstra(int numDebut,int numFin)
 {
-private :
-    ///liste des sommets (vecteur de pointeurs sur Sommet)
-    std::vector<Sommet*> m_sommets;
-    std::pair<Sommet*,int> m_liaison;
-public :
-    /* La construction du réseau peut se faire à partir d'un fichier
-     dont le nom est passé en paramètre
-    Le fichier contient : orientation (0 ou 1), ordre, taille, liste des arcs */
-    Graphe(std::string nomFichier)
+    std::vector<int> distance;//distance
+    std::vector<int> pred;//prédécesseurs du sommet
+    std::vector<int> marque;//vecteur indiquant si un sommet est marqué ou pas
+    int indice;
+    for(unsigned int i=0; i<m_sommets.size(); i++)//initialisation des vecteurs
     {
-        std::ifstream ifs{nomFichier};
-        if (!ifs)
-            throw std::runtime_error( "Impossible d'ouvrir en lecture " + nomFichier );
-
-        int ordre;
-        ifs >> ordre;
-        if ( ifs.fail() )
-            throw std::runtime_error("Probleme lecture ordre du graphe");
-
-        for (int i=0; i<ordre; ++i)
-        {
-            ifs >> i;
-            m_sommets.push_back( new Sommet{i} );
-        }
-
-        int taille;
-        ifs >> taille;
-        if ( ifs.fail() )
-            throw std::runtime_error("Probleme lecture taille du graphe");
-        int num1,num2,poids;
-        for (int i=0; i<taille; ++i)
-        {
-            ifs>>num1>>num2>>poids;
-            if ( ifs.fail() )
-                throw std::runtime_error("Probleme lecture arc");
-            m_liaison=std::make_pair(m_sommets[num2],poids);//association du poids de la liaison avec le deuxième sommet
-
-            m_sommets[num1]->ajouterSucc(m_liaison);//association de la liaison avec le sommet auquel elle est rattachée
-        }
+        marque.push_back(0);
+        distance.push_back(INFINI);
+        pred.push_back(-1);
     }
-    int getOrdre()
-    {
-        return m_sommets.size();
-    }
-    void djikstra(int numDebut, int numFin)
-    {
-        std::vector<int> distance;//distance
-        std::vector<int> pred;//prédécesseurs du sommet
-        std::vector<int> marque;//vecteur indiquant si un sommet est marqué ou pas
-        int indice;
-        for(unsigned int i=0; i<m_sommets.size(); i++)//initialisation des vecteurs
-        {
-            marque.push_back(0);
-            distance.push_back(INFINI);
-            pred.push_back(-1);
-        }
 // étape 0
-        distance[numDebut]=0; //1er sommet, distance nulle
+    distance[numDebut]=0; //1er sommet, distance nulle
 
         // étapes 1 à n
-        bool finBoucle=false;
+    bool finBoucle=false;
 
-        while (!finBoucle)
+    while (!finBoucle)
+    {
+        int distanceMinimum=INFINI;//dstance minimun au sommet, initialisée à INFINI
+
+        for(unsigned int i=0; i<m_sommets.size(); i++)
         {
-            int distanceMinimum=INFINI;//dstance minimun au sommet, initialisée à INFINI
-
-            for(unsigned int i=0; i<m_sommets.size(); i++)
+            if(marque[i]==0)
             {
-                if(marque[i]==0)
+                if(distance[i]<distanceMinimum)//si la distance du sommet i au sommet initial est inférieure à la distance précédemment enregisttrée
                 {
-                    if(distance[i]<distanceMinimum)//si la distance du sommet i au sommet initial est inférieure à la distance précédemment enregisttrée
-                    {
-                        distanceMinimum=distance[i];
-                        indice=i;
-                    }
-                }
-
-            }
-            marque[indice]=1;//le sommet est marqué
-            if(indice==numFin)//fin de la boucle si l'indice est le numéro d'arrivée
-            {
-                finBoucle=true;
-            }
-            else
-            {
-                for (unsigned int i=0; i<m_sommets[indice]->getSuccesseurs().size(); ++i)
-                {
-                    int nvDistance=distance[indice]+m_sommets[indice]->getSuccesseurs()[i].second;//calcul d'une distance passant par un successeur
-                    int indiceSuc=m_sommets[indice]->getSuccesseurs()[i].first->getNum();//indice d'un successeur du sommet indice
-                    if(nvDistance<distance[indiceSuc])//Si la distance calculée est inférieure à la distance trouvée précédemment
-                    {
-                        distance[indiceSuc]=nvDistance;//la distance nouvellement calculée calculée devient la distance de référence
-                        pred[indiceSuc]=indice;//le sommet indice passe dans le tableau des prédécesseurs
-                    }
+                    distanceMinimum=distance[i];
+                    indice=i;
                 }
             }
 
         }
-        std::cout<<"trajet: ";
-        do
+        marque[indice]=1;//le sommet est marqué
+        if(indice==numFin)//fin de la boucle si l'indice est le numéro d'arrivée
         {
-            std::cout<<indice<<" <- ";
-            indice=pred[indice];
+            finBoucle=true;
         }
-        while(indice!=numDebut);//afficher la liste des sommets en partant du dernier sommet
-        std::cout<<indice<<std::endl;
-        indice=numFin;
-        std::cout<<"longueur: ";
-        do
+        else
         {
-            std::cout<<distance[indice]-distance[pred[indice]];
-            indice=pred[indice];
-            if(indice!=numDebut)
+            for (unsigned int i=0; i<m_sommets[indice]->getSuccesseurs().size(); ++i)
             {
-                std::cout<<" + ";
+                int nvDistance=distance[indice]+m_sommets[indice]->getSuccesseurs()[i]->getDuree();//calcul d'une distance passant par un successeur
+                int indiceSuc=m_sommets[indice]->getSuccesseurs()[i]->getArrivee()->getNum()-1;//indice d'un successeur du sommet indice
+                if(nvDistance<distance[indiceSuc])//Si la distance calculée est inférieure à la distance trouvée précédemment
+                {
+                    distance[indiceSuc]=nvDistance;//la distance nouvellement calculée calculée devient la distance de référence
+                    pred[indiceSuc]=indice;//le sommet indice passe dans le tableau des prédécesseurs
+                }
             }
         }
-        while(indice!=numDebut);//afficher la somme des distances en partant de la distance finale
-        std::cout<<" = "<<distance[numFin]<<std::endl;
 
     }
-    /*destructeur*/
-    ~Graphe()
+    std::cout<<"trajet: ";
+    do
     {
-        for (auto s : m_sommets)
-            delete s;
+        std::cout<<indice+1<<" <- ";
+        indice=pred[indice];
     }
-    /*méthode d'affichage*/
-    void afficher() const
+    while(indice!=numDebut);//afficher la liste des sommets en partant du dernier sommet
+    std::cout<<indice+1<<std::endl;
+    indice=numFin;
+    std::cout<<"duree (s): ";
+    do
     {
-        std::cout<<std::endl<<"graphe ";
-        std::cout<<"ordre = "<<m_sommets.size()<<std::endl<<"  ";
-        std::cout<<"listes d'adjacence :"<<std::endl;
-        for (auto s : m_sommets)
+        std::cout<<distance[indice]-distance[pred[indice]];
+        indice=pred[indice];
+        if(indice!=numDebut)
         {
-            s->afficher();
-            std::cout<<std::endl;
+            std::cout<<" + ";
         }
     }
-};
+    while(indice!=numDebut);//afficher la somme des distances en partant de la distance finale
+    std::cout<<" = "<<distance[numFin]<<std::endl;
+
+}
+//////////main
 int main()
 {
-    Graphe g{"graphe.txt"};
-    ///appel de la méthode pour afficher le graphe
+    int numDebut, numFin;
+    std::vector<Point*> bfs;
+    Station arcs("data_arcs.txt");
+    arcs.afficher();
+    std::cout<<"Saisir numero debut :"<<std::endl;
+    std::cin>>numDebut;
+    std::cout<<"Saisir numero fin :"<<std::endl;
+    std::cin>>numFin;
+    arcs.dijkstra(numDebut-1,numFin-1);
 
-    /// afficher le graphe
-    g.afficher();
-    int i, j;
-    do
-    {
-        std::cout<<"saisir numero debut:";
-        std::cin>>i;
-    }
-    while((i<0)||(i>=g.getOrdre()));//pas le droit de saisir un numero de sommet inexistant
-    do
-    {
-        std::cout<<"saisir numero fin:";
-        std::cin>>j;
-    }
-    while((j==i)||(j<0)||(j>=g.getOrdre()));//pas le droit de saisir une destination identique au départ ou un numero de sommet inexistant
-
-    g.djikstra(i,j);
+    Menu();
     return 0;
 }
