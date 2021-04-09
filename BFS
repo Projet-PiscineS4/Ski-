@@ -4,7 +4,7 @@ std::vector<int> Station::BFS(int n0) const
 {
     ///Marquage
     enum {Blanc, Gris};
-    std::vector<int> couleur((int)m_sommets.size()+1,Blanc);
+    std::vector<int> couleur((int)m_sommets.size(),Blanc);
     ///pour noter les prédécesseurs : on note les numéros des prédécesseurs
     std::vector<int> preds((int)m_sommets.size(),-1);
 
@@ -12,8 +12,8 @@ std::vector<int> Station::BFS(int n0) const
     std::queue<Points*> file;
 
     ///On enfile et on marque le sommet initial
-    couleur[n0-1] = Gris;
-    file.push(m_sommets[n0-1]);
+    couleur[n0] = Gris;
+    file.push(m_sommets[n0]);
 
     Points*p;
     while(!file.empty())
@@ -26,12 +26,12 @@ std::vector<int> Station::BFS(int n0) const
         for(auto succ:p->getAdjacent())
         {
             ///s'il n'est pas marqué
-            if(couleur[succ->getNum()] == Blanc)
+            if(couleur[succ->getNum()-1] == Blanc)
             {
                 ///On le marque
-                couleur[succ->getNum()] = Gris;
+                couleur[succ->getNum()-1] = Gris;
                 ///On note son prédecesseur (=le sommet défilé)
-                preds[succ->getNum()]=p->getNum();
+                preds[succ->getNum()-1]=p->getNum()-1;
                 ///On le met dans la file
                 file.push(succ);
             }
@@ -51,15 +51,15 @@ void Station::afficheBFS(size_t num, std::vector<int>& arbre)
             if(arbre[i]!=-1)
             {
                 int j=i;
-                std::cout << j;
+                std::cout << j+1;
 
                 while(arbre[j]!=num)
                 {
-                    std::cout << " <-- "<<arbre[j];
+                    std::cout << " <-- "<<arbre[j]+1;
 
                     j=arbre[j];
                 }
-                std::cout<<"<---"<<num;
+                std::cout<<" <-- "<<num+1;
                 std::cout << std::endl;
             }
         }
@@ -157,9 +157,9 @@ void BFS(Station &LeGraphe)
     }
     while(sommet<0 && sommet >37);
 
-    std::vector<int> arbre_BFS = LeGraphe.BFS(sommet);
+    std::vector<int> arbre_BFS = LeGraphe.BFS(sommet-1);
 
-    LeGraphe.afficheBFS(sommet,arbre_BFS);
+    LeGraphe.afficheBFS(sommet-1,arbre_BFS);
 
 }
 
