@@ -110,6 +110,17 @@ Station::Station(std::string nomFichier)
     for (auto s:m_aretes)
     {
         int t;
+        if(s->getType()=="BUS")
+            {
+                if((s->getNom()=="navette1600-1800")||(s->getNom()=="navette1800-1600"))
+                {
+                    s->setDuree(1800);
+                }
+                else
+                {
+                    s->setDuree(2400);
+                }
+            }
         for (auto it:m_duree)
         {
             if(s->getType()==it->getParcours())
