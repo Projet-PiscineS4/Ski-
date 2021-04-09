@@ -164,6 +164,6 @@ int main()
     std::cin>>numFin;
     arcs.dijkstra(numDebut-1,numFin-1);
 
-    Menu();
+    
     return 0;
 }
