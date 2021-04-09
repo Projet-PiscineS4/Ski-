@@ -4,7 +4,7 @@ std::vector<int> Station::BFS(int n0) const
 {
     ///Marquage
     enum {Blanc, Gris};
-    std::vector<int> couleur((int)m_sommets.size(),Blanc);
+    std::vector<int> couleur((int)m_sommets.size()+1,Blanc);
     ///pour noter les prédécesseurs : on note les numéros des prédécesseurs
     std::vector<int> preds((int)m_sommets.size(),-1);
 
