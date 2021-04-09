@@ -171,7 +171,7 @@ private :
 public :
     /* La construction du réseau peut se faire à partir d'un fichier
      dont le nom est passé en paramètre
-    Le fichier contient : orientation (0 ou 1), ordre, taille, liste des arcs */
+    Le fichier contient : ordre, taille, liste des arcs */
 
     Station(std::string nomFichier);
 
@@ -214,7 +214,6 @@ Station::Station(std::string nomFichier)
         Trajet* t=new Trajet(m_sommets[num1-1],m_sommets[num2-1], 0,TypeTrajet,NomTrajet);
         m_aretes.push_back(t);//le graphe débute à 1, donc on soustrait 1
 
-        //m_liaison=std::make_pair(m_sommets[num2],TypeTrajet);//association du poids de la liaison avec le deuxième sommet
 
         m_sommets[num1-1]->ajouterSucc(t);//association de la liaison avec le sommet auquel elle est rattachée
     }
@@ -352,10 +351,10 @@ void Station::dijkstra(int numDebut,int numFin)
         }
         else
         {
-            for (unsigned int i=0; i<m_sommets[indice-1]->getSuccesseurs().size(); ++i)
+            for (unsigned int i=0; i<m_sommets[indice]->getSuccesseurs().size(); ++i)
             {
-                int nvDistance=distance[indice]+m_sommets[indice-1]->getSuccesseurs()[i]->getDuree();//calcul d'une distance passant par un successeur
-                int indiceSuc=m_sommets[indice-1]->getSuccesseurs()[i]->getArrivee()->getNum();//indice d'un successeur du sommet indice
+                int nvDistance=distance[indice]+m_sommets[indice]->getSuccesseurs()[i]->getDuree();//calcul d'une distance passant par un successeur
+                int indiceSuc=m_sommets[indice]->getSuccesseurs()[i]->getArrivee()->getNum()-1;//indice d'un successeur du sommet indice
                 if(nvDistance<distance[indiceSuc])//Si la distance calculée est inférieure à la distance trouvée précédemment
                 {
                     distance[indiceSuc]=nvDistance;//la distance nouvellement calculée calculée devient la distance de référence
@@ -368,13 +367,13 @@ void Station::dijkstra(int numDebut,int numFin)
     std::cout<<"trajet: ";
     do
     {
-        std::cout<<indice<<" <- ";
+        std::cout<<indice+1<<" <- ";
         indice=pred[indice];
     }
     while(indice!=numDebut);//afficher la liste des sommets en partant du dernier sommet
-    std::cout<<indice<<std::endl;
+    std::cout<<indice+1<<std::endl;
     indice=numFin;
-    std::cout<<"longueur: ";
+    std::cout<<"duree (s): ";
     do
     {
         std::cout<<distance[indice]-distance[pred[indice]];
