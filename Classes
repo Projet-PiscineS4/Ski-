@@ -35,6 +35,18 @@ void Point::ajouterSucc( Trajet*t)
 {
     m_trajet.push_back(t);
 }
+std::vector<Points*>& Points::getAdjacent()
+{
+    return m_adjacent;
+}
+const std::vector< Trajet*>& Points::getSuccesseurs()
+{
+    return m_trajet;
+}
+void Points::ajouterAd(Points*p)
+{
+    m_adjacent.push_back(p);
+}
 /////////////.h
 class Lieu
 {
