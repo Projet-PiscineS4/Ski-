@@ -152,18 +152,38 @@ void Station::dijkstra(int numDebut,int numFin)
 
 }
 //////////main
-int main()
+void PlusCourt(Station &LeG)
+{
+    system("cls");
+    char choix;
+    do
+    {
+        std::cout<<"1) Moins de trajet      2) Moins de temps"<<std::endl;
+        std::cin>>choix;
+    }
+    while(choix!='1' && choix!='2');
+
+    switch(choix)
+    {
+    case '1':
+    {
+        BFS(LeG);
+        break;
+    }
+    case '2':
+    {
+        Dijkstra(LeG);
+        break;
+    }
+    }
+}
+void Dijkstra(Station &LeGraphe)
 {
     int numDebut, numFin;
-    std::vector<Point*> bfs;
-    Station arcs("data_arcs.txt");
-    arcs.afficher();
+
     std::cout<<"Saisir numero debut :"<<std::endl;
     std::cin>>numDebut;
     std::cout<<"Saisir numero fin :"<<std::endl;
     std::cin>>numFin;
-    arcs.dijkstra(numDebut-1,numFin-1);
-
-    
-    return 0;
+    LeGraphe.dijkstra(numDebut-1,numFin-1);
 }
