@@ -1,0 +1,228 @@
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+    cout << "Hello world!" << endl;
+    return 0;
+}
+
+std::vector<std::string> pistes;
+std::vector<std::string>remonte;
+int pitste1 = 0, pitste2 = 0, pitste3 = 0, pitste4 = 0, pitste5 = 0, pitste6 = 0;
+int remonte1=0, remonte2=0, remonte3=0, remonte4=0, remonte5=0;
+do
+{
+    system("cls");
+    std::cout<< "Choisissez les pistes que vous souhaitez inclure"<<std::endl<<"Pistes disponibles:"<<std::endl<<"1. nom1"<<std::endl<<"2.nom2" etc....
+    std::cin<<choix;
+    if(choix == 1 && piste1 == 0)
+    {
+        system("cls");
+        pistes.push_back("nom1");
+        piste1 = 1;
+        choix = 0;
+        std::cout<< "Choix valide"
+        //sleep(800);
+    }
+    else if(choix==1 && piste1 == 1)
+    {
+        system("cls");
+        std::cout<< "Piste deja selectionnee, reessayez"
+        //sleep(800);
+    }
+    else if(choix==2 && piste2 == 0)
+    {
+
+    system("cls");
+        pistes.push_back("nom2");
+        piste2 = 1;
+        choix = 0;
+        std::cout<< "Choix valide"
+        //sleep(800);
+    }
+    else if(choix==2 && piste1 == 1)
+    {
+        system("cls");
+        std::cout<< "Piste deja selectionnee, reessayez"
+        //sleep(800);
+    }
+     else if(choix==3 && piste2 == 0)
+    {
+
+    system("cls");
+        pistes.push_back("nom3");
+        piste3 = 1;
+        choix = 0;
+        std::cout<< "Choix valide"
+        //sleep(800);
+    }
+    else if(choix==3 && piste1 == 1)
+    {
+        system("cls");
+        std::cout<< "Piste deja selectionnee, reessayez"
+        //sleep(800);
+    }
+     else if(choix==4 && piste2 == 0)
+    {
+
+    system("cls");
+        pistes.push_back("nom4");
+        piste4 = 1;
+        choix = 0;
+        std::cout<< "Choix valide"
+        //sleep(800);
+    }
+    else if(choix==4 && piste1 == 1)
+    {
+        system("cls");
+        std::cout<< "Piste deja selectionnee, reessayez"
+        //sleep(800);
+    }
+     else if(choix==5 && piste2 == 0)
+    {
+
+    system("cls");
+        pistes.push_back("nom5");
+        piste5 = 1;
+        choix = 0;
+        std::cout<< "Choix valide"
+        //sleep(800);
+    }
+    else if(choix==5 && piste1 == 1)
+    {
+        system("cls");
+        std::cout<< "Piste deja selectionnee, reessayez"
+        //sleep(800);
+    }
+     else if(choix==6 && piste2 == 0)
+    {
+
+    system("cls");
+        pistes.push_back("nom2");
+        piste2 = 1;
+        choix = 0;
+        std::cout<< "Choix valide"
+        //sleep(800);
+    }
+    else if(choix==6 && piste1 == 1)
+    {
+        system("cls");
+        std::cout<< "Piste deja selectionnee, reessayez"
+        //sleep(800)
+    }
+    else if(choix == 7)
+    {
+        system("cls");
+        std::cout<<"Fin des choix"
+        //sleep(800);
+    }
+    else {
+       system("cls");
+       std::cout<<"Choix indisponible"<<std::endl;
+      //sleep(800);
+}
+
+while((pistee.size()!=6) && (temp!=1)); 
+    temp = 0;
+    choix =0;
+    do
+    {
+        system("cls");
+        std::cout<<"Choisissez les remontees"<<std::endl;<<"Remontees disponibles:"<<std::endl<<"1. TFH"<<std::endl<<"2.nom2"<< etc......
+        std::cin>>choix;
+        if(choix==1 && remonte1 ==0)
+        {
+            system("cls");
+            remonte.push_back("TFH");
+            pistes.push_back("TFH");
+            remonte1=1;
+            choix=0;
+            std::cout<<"Choix valide"
+            //sleep(800);
+        }
+        else if(choix==1 && remonte1=1)
+        {
+            system("cls");
+            std::cout<<"Remontee deja selectionnee, reessayez"<<std::endl;
+            //sleep(800);
+        }
+        
+        
+        
+        
+        
+        else if(choix==2 && remonte1=0)
+         {
+            system("cls");
+            remonte.push_back("nom2");
+            pistes.push_back("nom2");
+            remonte2=1;
+            choix=0;
+            std::cout<<"Choix valide"
+            //sleep(800);
+        }
+        else if(choix==2&& remonte1=1)
+        {
+            system("cls");
+            std::cout<<"Remontee deja selectionnee, reessayez"<<std::endl;
+            //sleep(800);
+        }
+       
+        else if(choix==3&& remonte1=0)
+         {
+            system("cls");
+            remonte.push_back("nom3");
+            pistes.push_back("nom3");
+            remonte3=1;
+            choix=0;
+            std::cout<<"Choix valide"
+            //sleep(800);
+        }
+        else if(choix==3 && remonte1=1)
+        {
+            system("cls");
+            std::cout<<"Remontee deja selectionnee, reessayez"<<std::endl;
+            //sleep(800);
+        }
+        
+        
+        
+         else if(choix==4 && remonte1=0)
+         {
+            system("cls");
+            remonte.push_back("nom4");
+            pistes.push_back("nom4");
+            remonte4=1;
+            choix=0;
+            std::cout<<"Choix valide"
+            //sleep(800);
+        }
+        else if(choix==4 && remonte1=1)
+        {
+            system("cls");
+            std::cout<<"Remontee deja selectionnee, reessayez"<<std::endl;
+            //sleep(800);
+        }
+        
+        
+        
+         else if(choix==5 && remonte1=0)
+         {
+            system("cls");
+            remonte.push_back("nom5");
+            pistes.push_back("nom5");
+            remonte5=1;
+            choix=0;
+            std::cout<<"Choix valide"
+            //sleep(800);
+        }
+        else if(choix==5 && remonte1=1)
+        {
+            system("cls");
+            std::cout<<"Remontee deja selectionnee, reessayez"<<std::endl;
+            //sleep(800);
+        }
+        
+        
