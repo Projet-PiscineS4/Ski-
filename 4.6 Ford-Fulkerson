@@ -1,0 +1,361 @@
+/////////Trajet.h
+class Trajet
+{
+private:
+    //int m_num;
+    Points* m_depart;
+    Points* m_arrive;
+    int m_duree;
+    int m_flot;
+    int m_capacite;
+    std::string m_type;
+    std::string m_nom;
+
+public:
+    Trajet(Points* _depart, Points* _arrivee, int _flot, std::string _type,std::string _nom);
+    ~Trajet();
+
+    Points* getDepart()const;
+    Points* getArrive()const;
+    int getDuree()const;
+    int getFlot()const;
+    int getCapacite()const;
+    std::string getType()const;
+    std::string getNom()const;
+    int calculDenivele();
+    void setDuree(int duree);
+    void setCapacite(int capacite);
+    void setFlot(int flot);
+};
+//////////Trajet.cpp
+Trajet::Trajet(Points* _depart,Points* _arrivee,int _flot,std::string _type,std::string _nom)
+    :m_depart(_depart),m_arrive(_arrive),m_flot(_flot),m_type(_type),m_nom(_nom)
+{
+
+}
+
+void Trajet::setCapacite(int capacite)
+{
+    m_capacite=capacite;
+}
+void Trajet::setFlot(int flot)
+{
+    m_flot=flot;
+}
+//////////créer Flot.h
+class Flot
+{
+private:
+    int m_flot;
+    std::string m_typeTrajet;
+public:
+    Flot(int _flot, std::string _typeTrajet);
+    ~Flot();
+    int getFlot()const;
+    std::string getTypeTrajet() const;
+
+};
+//////////créer Flot.cpp
+Flot::Flot(int _flot, std::string _typeTrajet)
+    :m_flot(_flot),m_typeTrajet(_typeTrajet)
+{
+
+}
+Flot::~Flot()
+{
+
+}
+int Flot::getFlot()const
+{
+    return m_flot;
+}
+std::string Flot::getTypeTrajet()const
+{
+    return m_typeTrajet;
+}
+////////Station.h
+class Station
+{
+private :
+    ///liste des sommets (vecteur de pointeurs sur Sommet)
+    std::vector<Points*> m_sommets;
+    std::vector<Trajet*> m_aretes;
+    std::pair<Points*,int> m_liaison;
+    std::vector<Duree*> m_duree;
+    std::vector<Flot*> m_flots;
+
+public :
+    Station(std::string nomFichier);
+    ~Station();
+
+    void afficher() const;
+    void afficheTraj()const;
+    void ChoixTraj(int choix);
+    void ChoixP(int choix1);
+    std::vector<int> BFS(int n0) const;
+    void afficheBFS(size_t n0, std::vector<int>& arbre);
+    void dijkstra(int numDebut,int numFin);
+    void FordFulkerson(int source, int puits);
+};
+////////Station.cpp
+Station::Station(std::string nomFichier)
+{
+    std::ifstream ifs{nomFichier};
+    if (!ifs)
+        throw std::runtime_error( "Impossible d'ouvrir en lecture " + nomFichier );
+    int ordre;
+    ifs >> ordre;
+    if ( ifs.fail() )
+        throw std::runtime_error("Probleme lecture ordre du graphe");
+    int n, altitude;
+    std::string pointDinteret;
+    for (int i=0; i<ordre; ++i)
+    {
+        ifs >> n>> pointDinteret>>altitude;
+        m_sommets.push_back( new Points{n,altitude} );
+    }
+    int taille;
+    ifs >> taille;
+    if ( ifs.fail() )
+        throw std::runtime_error("Probleme lecture taille du graphe");
+    int numeroTrajet, num1,num2;
+    std::string NomTrajet,TypeTrajet;
+    for (int i=0; i<taille; ++i)
+    {
+        ifs>>numeroTrajet>>NomTrajet>>TypeTrajet>>num1>>num2;
+        if ( ifs.fail() )
+            throw std::runtime_error("Probleme lecture arc");
+        Trajet* t=new Trajet(m_sommets[num1-1],m_sommets[num2-1], 0,TypeTrajet,NomTrajet);
+        m_aretes.push_back(t);//le graphe débute à 1, donc on soustrait 1
+
+        //m_liaison=std::make_pair(m_sommets[num2],TypeTrajet);//association du poids de la liaison avec le deuxième sommet
+        m_sommets[num1-1]->ajouterAd(m_sommets[num2-1]);
+        m_sommets[num1-1]->ajouterSucc(t);//association de la liaison avec le sommet auquel elle est rattachéeIMPORTANT DE LE REMETTRE
+
+
+    }
+    int dureeFixe,dureeDenivele;
+    for(int i=0; i<15; i++)
+    {
+        ifs>>TypeTrajet>>dureeFixe>>dureeDenivele;
+        m_duree.push_back(new Duree(dureeFixe,dureeDenivele,TypeTrajet));
+    }
+    int capacite;
+    for (int i=0; i<12; i++) //nombre de flots dans le fichier
+    {
+        ifs>>TypeTrajet>>capacite;
+        m_flots.push_back(new Flot(capacite,TypeTrajet));
+    }
+    for (auto s:m_aretes)
+    {
+        int t;
+        for (auto it:m_duree)
+        {
+            if(s->getType()=="BUS")
+            {
+                if((s->getNom()=="navette1600-1800")||(s->getNom()=="navette1800-1600"))
+                {
+                    s->setDuree(1800);
+                }
+                else
+                {
+                    s->setDuree(2400);
+                }
+            }
+            else if(s->getType()==it->getParcours())
+            {
+                t=it->calculDuree(s);
+            }
+            s->setDuree(t);
+        }
+        for (auto it:m_flots)
+        {
+            if(s->getType()==it->getTypeTrajet())
+            {
+                t=it->getFlot();
+                s->setCapacite(t);
+            }
+
+        }
+    }
+
+}
+void Station::FordFulkerson(int source, int puits)
+{
+    int flotTotal=0;
+    std::vector<int>flotLocal;
+    std::vector<int>::iterator it;
+    for(auto s:m_aretes)
+    {
+        s->setFlot(0);
+        //flotLocal.push_back(s->getFlot());
+    }
+    bool finBoucle=false;
+    ///Marquage
+    enum {Blanc, Gris};
+    do
+    {
+        std::vector<int> couleur((int)m_sommets.size(),Blanc);
+        ///pour noter les prédécesseurs : on note les numéros des prédécesseurs
+        std::vector<int> preds((int)m_sommets.size(),-1);
+        //std::initializer_list<int> flotLocal;
+        ///déclaration de la file
+        std::queue<Points*> file;
+        Points*p;
+        ///On enfile et on marque le sommet initial
+
+        couleur[source] = Gris;
+        file.push(m_sommets[source]);
+
+
+        while(!file.empty())//debut bfs modifié
+        {
+            //std::cout<<"entre dans la boucle"<<std::endl;
+            ///on défile le prochain sommet
+            p=file.front();
+            file.pop();
+
+            ///pour chaque successeur du sommet défilé
+            for(auto succ:p->getSuccesseurs())
+            {
+                //std::cout<<"getSuccesseurs"<<std::endl;
+
+                if(succ->getFlot()<succ->getCapacite())
+                {
+                    if(couleur[succ->getArrive()->getNum()-1] == Blanc)
+                    {
+                        ///On le marque
+                        couleur[succ->getArrive()->getNum()-1] = Gris;
+                        ///On note son prédecesseur (=le sommet défilé)
+                        preds[succ->getArrive()->getNum()-1]=p->getNum()-1;
+                        ///On le met dans la file
+                        file.push(succ->getArrive());
+                    
+                    }
+                }
+                ///s'il n'est pas marqué
+
+            }
+        }//fin bfs modifié
+
+        // puits non atteint, on arrête de chercher des chemins
+        if(preds[puits]==-1)
+        {
+            finBoucle=true;
+        }
+        else // chemin possible
+        {
+            int j=puits;
+            std::cout << j+1;
+            do // on remplit le tableau des capacites dispo de chaque arete
+
+            {
+                std::cout << " <-- "<<preds[j]+1;
+
+                // recherche de l'arete
+                for(auto elem:m_sommets[preds[j]]->getSuccesseurs())
+                {
+                    if(elem->getArrive()==m_sommets[j])
+                    {
+                        flotLocal.push_back(elem->getCapacite()-elem->getFlot());
+                    }
+                }
+
+                j=preds[j];
+            }while(j!=source);
+
+            //std::cout<<" <-- "<<source+1;
+            std::cout << std::endl;
+
+            // minimum flot possible
+            it=std::min_element(flotLocal.begin(),flotLocal.end());
+            //std::cout<<*it<<std::endl;
+            flotTotal+=*it;
+
+            // mise à jour des capacites utilisées
+            j=puits;
+            
+            do
+
+            {
+                
+                for(auto elem:m_sommets[preds[j]]->getSuccesseurs())
+                {
+                    if(elem->getArrive()==m_sommets[j])
+                    {
+                        elem->setFlot(elem->getFlot()+*it);
+                        std::cout<<" "<<elem->getFlot()<<"/"<<elem->getCapacite()<<" ";
+                    }
+                }
+
+                j=preds[j];
+            }while(j!=source);
+            std::cout<<std::endl;
+            do
+            {
+                flotLocal.pop_back();
+            }
+            while(!flotLocal.empty());
+
+        }
+    }
+    while(finBoucle==false);
+    std::cout<<" flot chemin="<<flotTotal<<std::endl;
+
+
+}
+///////////main.cpp
+void Menu()
+{
+
+    Station graphe("fichier.txt");
+    char choix;
+    //int test;
+    std::cout<<"Bienvenue dans notre sur la Borne Interactive de votre Domaine Skiable prefere !! "<<std::endl;
+    std::cout<<std::endl;
+    do
+    {
+        std::cout<<"Que voulez vous faire ? :"<<std::endl;
+        std::cout<< "1) Savoir les Points d'arrive et de Depart d'un trajet  "<<std::endl;
+        std::cout<<"2) Savoir les trajet relies a un point  "<<std::endl;
+        std::cout<<"3) Plus court chemin d'un point vers les autres"<<std::endl;
+        std::cout<<"4) Flot maximal entre 2 points"<<std::endl;
+        std::cin>>choix;
+        std::cout<<std::endl;
+    }
+    while(choix != '1' && choix!='2' && choix!='3' && choix!='4');
+
+    switch(choix)
+    {
+    case '1':
+    {
+        Parcours(graphe);
+        break;
+    }
+    case '2':
+    {
+        Chemin(graphe);
+        break;
+    }
+    case '3':
+    {
+        PlusCourt(graphe);
+        break;
+    }
+    case '4':
+    {
+        Debit(graphe);
+    }
+    }
+}
+void Debit(Station &LeGraphe)
+{
+    int source, puits;
+
+    std::cout<<"Saisir numero debut :"<<std::endl;
+    std::cin>>source;
+    std::cout<<"Saisir numero fin :"<<std::endl;
+    std::cin>>puits;
+
+    LeGraphe.FordFulkerson(source-1,puits-1);
+}
