@@ -1,0 +1,387 @@
+////////////////////////////////FONCTION POUR LA 4.5
+void Station::MonParcours(std::string p1,std::string p2,std::string r1,std::string r2)
+{
+    system("cls");
+    int n0;
+    std::cout<<"De quel point voulez partir ?"<<std::endl;
+    std::cin>>n0;
+
+    std::vector <Trajet*> LesAr;
+    std::vector <Points*> LesP;
+
+
+
+    for(auto elem :m_aretes)
+    {
+        if(elem->getType()==p1 || elem->getType()==p2 ||elem->getType()==r2 || elem->getType()==r1 )
+        {
+            LesAr.push_back(elem);
+        }
+        else
+        {
+            continue;
+        }
+    }
+
+    for(auto elem :LesAr)
+    {
+        std::cout<<elem->getDepart()->getNum()<<"---"<<elem->getArrive()->getNum()<<std::endl;
+    }
+
+    for(int i=0; i<LesAr.size(); i++)
+    {
+        LesP.push_back(LesAr[i]->getDepart());
+        LesP.push_back(LesAr[i]->getArrive());
+    }
+
+
+
+    for(auto elem : LesP)
+    {
+        std::cout<<elem->getNum()<<std::endl;
+    }
+
+
+    enum {Blanc, Gris};
+    std::vector<int> couleur((int)m_sommets.size()+1,Blanc);
+    std::vector<int> preds((int)m_sommets.size(),-1);
+    std::queue<Points*> file;
+
+    int i;
+    for(i=0; i<LesP.size(); i++)
+    {
+        if(LesP[i]->getNum()!=n0)
+        {
+            i++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    couleur[i] = Gris;
+    file.push(LesP[i]);
+
+    Points*p;
+    while(!file.empty())
+    {
+        p=file.front();
+        file.pop();
+        for(auto succ:p->getAdjacent())
+        {
+            for(auto traj :LesAr)
+            {
+                if(traj->getDepart()==succ || traj->getArrive()==succ )
+                {
+                    if(traj->getType()==p1 || traj->getType()==p2 ||traj->getType()==r2 || traj->getType()==r1 )
+                    {
+                        if(couleur[succ->getNum()] == Blanc)
+                        {
+                            couleur[succ->getNum()] = Gris;
+                            preds[succ->getNum()]=p->getNum();
+                            file.push(succ);
+                        }
+
+
+                    }
+
+                }
+
+                else
+                {
+                    continue;
+                }
+
+            }
+
+
+
+        }
+    }
+
+    int tp1;
+    for(int i=0; i<preds.size(); ++i)
+    {
+        int tps=0;
+
+        if(i!=n0)
+        {
+            if(preds[i]!=-1)
+            {
+
+                int j=i;
+                std::cout << j;
+                for(auto elem: LesAr)
+                {
+                    if(elem->getDepart()->getNum()==n0)
+                    {
+                        if(elem->getArrive()->getNum()==j)
+                        {
+                            tp1=elem->getDuree();
+                        }
+                    }
+                }
+
+                while(preds[j]!=n0)
+                {
+
+                    std::cout << " <-- "<<preds[j];
+
+                    for(auto elem: LesAr)
+                    {
+
+                        if(elem->getDepart()->getNum()==preds[j])
+                        {
+                            if(elem->getArrive()->getNum()==j)
+                            {
+
+                                tps=tps+elem->getDuree();
+                            }
+                        }
+                    }
+
+
+
+
+
+                    j=preds[j];
+
+
+                }
+                std::cout<<"<---"<<n0;
+                std::cout << std::endl;
+
+                std::cout<<"temps :  "<<tps+tp1<<" secondes ";
+                std::cout<<std::endl;
+            }
+        }
+
+    }
+
+
+}
+
+////////////////////////////////////////////////////TOUT MON MAIN 
+void Menu()
+{
+
+    Station graphe("fichier.txt");
+    char choix;
+    int test;
+    std::cout<<"Bienvenue dans notre sur la Borne Interactive de votre Domaine Skiable prefere !! "<<std::endl;
+    std::cout<<std::endl;
+    do
+    {
+        std::cout<<"Que voulez vous faire ? :"<<std::endl;
+        std::cout<< "1) Savoir les Points d'arrive et de Depart d'un trajet  "<<std::endl;
+        std::cout<<"2) Savoir les trajet relies a un point  "<<std::endl;
+        std::cout<<"3) Plus court chemin d'un point vers les autres"<<std::endl;
+        std::cout<<"4) Parametre mes parcours"<<std::endl;
+        std::cin>>choix;
+        std::cout<<std::endl;
+    }
+    while(choix != '1' && choix!='2' && choix!='3' && choix!='4');
+
+    switch(choix)
+    {
+    case '1':
+    {
+        Parcours(graphe);
+        break;
+    }
+    case '2':
+    {
+        Chemin(graphe);
+        break;
+    }
+    case '3':
+    {
+        PlusCourt(graphe);
+        break;
+    }
+    case '4':
+    {
+        Perso(graphe);
+        break;
+    }
+
+    }
+}
+
+void Perso(Station &LeG)
+{
+    system("cls");
+    std::string choiR1, choiR2;
+    std::string  choiP1,choiP2;
+    do
+    {
+        std::cout<<"Quel type de piste voulez vous skier ? (veillez rentrer 2 categories de piste svp)"<<std::endl;
+        std::cout<<"V(verte)?  B(Bleue)?  R(Rouge)?  N(Noir)?"<<std::endl;
+        std::cin>>choiP1;
+        std::cout<<std::endl;
+        std::cout<<"V(verte)?  B(Bleue)?  R(Rouge)?  N(Noir)?"<<std::endl;
+        std::cin>>choiP2;
+        std::cout<<std::endl;
+    }while(choiP1 != "V" && choiP1!="B" && choiP1!="N" && choiP1!="R" ||choiP2 != "V" && choiP2!="B" && choiP2!="N" && choiP2!="R");
+
+    if(choiP1 == choiP2)
+    {
+        std::cout<<"Vous souhaitez skier uniquement des pistes "<<choiP1;
+        std::cout<<std::endl;
+        std::cout<<std::endl;
+    }
+    else
+    {
+        std::cout<<"Vous souhaitez skier des pistes "<<choiP1<<" et des piste "<<choiP2;
+        std::cout<<std::endl;
+        std::cout<<std::endl;
+    }
+    do
+    {
+        std::cout<<"Maintenant veuillez nous indique quel type de remonte etes vous pret a emprunter.(veillez rentrer 2 categories de remontee svp)"<<std::endl;
+        std::cout<<std::endl;
+        std::cout<<"Telepherique (TPH) ? Telecabine (TC) ? Telesiege debrayable (TSD) ? Telesiege (TS) ? Teleski (TK) ?"<<std::endl;
+        std::cin>>choiR1;
+        std::cout<<"Telepherique (TPH) ? Telecabine (TC) ? Telesiege debrayable (TSD) ? Telesiege (TS) ? Teleski (TK) ?"<<std::endl;
+        std::cin>>choiR2;
+    }while(choiR1 != "TPH" && choiR1!="TC" && choiR1!="TSD" && choiR1!="TS" && choiR1!="TK" || choiR2 != "TPH" && choiR2!="TC" && choiR2!="TSD" && choiR2!="TS" && choiR2!="TK" || choiR1==choiR2);
+
+    LeG.MonParcours(choiP1,choiP2,choiR1,choiR2);
+}
+
+void Parcours(Station &LeG)
+{
+    system("cls");
+    int choix;
+    do
+    {
+        std::cout<<"Choisissez un trajet :"<<std::endl;
+        ///LeG.afficheTraj(); OPTIONNEL
+        std::cin>>choix;
+    }
+    while(choix>95 || choix<0 && (char)choix>95);
+    LeG.ChoixTraj(choix);
+}
+
+
+void Chemin(Station &LeG)
+{
+
+    system("cls");
+    int dep;
+    do
+    {
+        std::cout<<"Choisissez votre point de depart :"<<std::endl;
+        std::cin>>dep;
+
+    }
+    while((char)dep+48<'1' || (char)dep+48>'U');
+
+    LeG.ChoixP(dep);
+
+}
+
+void PlusCourt(Station &LeG)
+{
+    system("cls");
+    char choix;
+    do
+    {
+        std::cout<<"1) Moins de trajet      2) Moins de temps"<<std::endl;
+        std::cin>>choix;
+    }
+    while(choix!='1' && choix!='2');
+
+    switch(choix)
+    {
+    case '1':
+    {
+        BFS(LeG);
+        break;
+    }
+    case '2':
+    {
+        Drij(LeG);
+        break;
+    }
+    }
+}
+
+void BFS(Station &LeGraphe)
+{
+    int sommet;
+
+    do
+    {
+        std::cout<<"De quel sommet voulez vous partir ?"<<std::endl;
+        std::cin>>sommet;
+    }
+    while(sommet<0 || sommet >37);
+
+    std::vector<int>arbre_BFS=LeGraphe.BFS(sommet);
+    LeGraphe.afficheBFS(sommet,arbre_BFS);
+
+}
+
+void Drij(Station &LeGraphe)
+{
+    system("cls");
+    int depart, arrive;
+    do
+    {
+        std::cout<<"De quel sommet voulez vous partir ?"<<std::endl;
+        std::cin>>depart;
+        std::cout<<"A quel somme voulez arriver ?"<<std::endl;
+        std::cin>>arrive;
+    }
+    while(depart<0 || depart>37 && arrive<0 || arrive>37);
+
+    LeGraphe.dijkstra(depart-1,arrive-1);
+
+}
+
+int main()
+{
+    Menu();
+}
+
+
+
+
+
+///////////////////////////////////////////////////////POINT C DE MA CLASSE POINTS 
+
+
+
+class Points;
+class Station
+{
+private :
+    ///liste des sommets (vecteur de pointeurs sur Sommet)
+    std::vector<Points*> m_sommets;
+    std::vector<Trajet*> m_aretes;
+    //std::pair<Points*,int> m_liaison;
+    std::vector<Duree*> m_duree;
+
+public :
+    Station(std::string nomFichier);
+    ~Station();
+
+    void afficher() const;
+    void afficheTraj()const;
+    void ChoixTraj(int choix);
+    std::vector<Points*> getSommet()const;
+    std::vector<Trajet*> getArete()const;
+    int Taille();
+    int Taille2();
+    void ChoixP(int choix1);
+    std::vector<int> BFS(int n0) const;
+    void dijkstra(int numDebut,int numFin);
+    void afficheBFS(size_t n0, std::vector<int>& arbre);
+
+
+
+    void MonParcours(std::string p1,std::string p2,std::string r1,std::string r2);
+
+};
